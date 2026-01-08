@@ -1,4 +1,5 @@
 document.getElementById("sidebar").innerHTML = `
+<link rel="stylesheet" href="https://cdn.mybustimes.cc/assets/tailwinds.css" />
 <nav class="sidebar">
     <a href="/" tip="Dashboard" class="sidebar-link">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
