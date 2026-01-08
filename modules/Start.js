@@ -42,6 +42,50 @@ var chalk = require("chalk");
 var path = require("path");
 var pm2 = require("pm2");
 var fs = require("fs");
+
+/**
+ * Detects if a bot is Python or JavaScript based on config files
+ * @param {string} botPath - Path to the bot directory
+ * @returns {object} Bot configuration with type and main entry
+ */
+function detectBotType(botPath) {
+    var botConfigPath = "".concat(botPath, "/bot.config.json");
+    var packagePath = "".concat(botPath, "/package.json");
+    
+    // Check for Python bot config first
+    if (fs.existsSync(botConfigPath)) {
+        try {
+            var config = JSON.parse(fs.readFileSync(botConfigPath, "utf8"));
+            if (config.type === "python") {
+                return {
+                    type: "python",
+                    main: config.main,
+                    interpreter: config.interpreter || "python3",
+                    config: config
+                };
+            }
+        } catch (err) {
+            console.error(chalk.red("Error reading bot.config.json:", err));
+        }
+    }
+    
+    // Fall back to package.json for JavaScript bots
+    if (fs.existsSync(packagePath)) {
+        try {
+            var pkg = JSON.parse(fs.readFileSync(packagePath, "utf8"));
+            return {
+                type: pkg.type || "javascript",
+                main: pkg.main,
+                config: pkg
+            };
+        } catch (err) {
+            console.error(chalk.red("Error reading package.json:", err));
+        }
+    }
+    
+    return null;
+}
+
 module.exports = function Start(Folder) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
@@ -51,34 +95,64 @@ module.exports = function Start(Folder) {
                         return;
                     }
                     console.log(chalk.blue("\u301A\u2261\u301BStarting ".concat(Folder, ", Please Wait...")));
-                    if (!fs.existsSync("./".concat(process.env.SECRET_PATH, "/").concat(Folder, "/node_modules"))) {
-                        Terminal("cd ./".concat(process.env.SECRET_PATH, "/").concat(Folder, " && npm install"))
-                            .then(function (data) { })
-                            .catch(function (err) { });
+                    
+                    var botPath = "./".concat(process.env.SECRET_PATH, "/").concat(Folder);
+                    var botInfo = detectBotType(botPath);
+                    
+                    if (!botInfo) {
+                        resolve("\u301A\u2718\u301BNo valid configuration found for ".concat(Folder));
+                        return;
                     }
-                    PackageFile = "./".concat(process.env.SECRET_PATH, "/").concat(Folder, "/package.json");
-                    if (fs.existsSync(PackageFile)) {
-                        fs.readFile(PackageFile, "utf8", function (err, data) {
-                            if (err) {
-                                console.error(err);
-                            }
-                            Package = JSON.parse(data);
-                            pm2.start({
-                                watch: false,
-                                daemon: false,
-                                detached: true,
-                                min_uptime: 5000,
-                                watch_delay: 5000,
-                                autorestart: false,
-                                watch_ignore: true,
-                                max_restarts: process.env.MAX_RELOADS,
-                                restart_delay: process.env.RESTART_DELAY,
-                                name: "".concat(process.env.PROCESS_SECRET.toUpperCase(), "_").concat(Folder),
-                                script: "./".concat(process.env.SECRET_PATH, "/").concat(Folder, "/").concat(Package.main),
-                                out_file: "./".concat(process.env.SECRET_PATH, "/logs/").concat(Folder, ".strout.log"),
-                                error_file: "./".concat(process.env.SECRET_PATH, "/logs/").concat(Folder, ".strerr.log"),
-                                max_memory_restart: "".concat(parseFloat(process.env.MAXIMUM_RAM_BYTES) / 1000000, "M"),
-                            });
+                    
+                    if (botInfo.type === "python") {
+                        // Python bot startup
+                        var requirementsPath = "".concat(botPath, "/requirements.txt");
+                        if (fs.existsSync(requirementsPath)) {
+                            Terminal("cd ".concat(botPath, " && pip3 install --break-system-packages -r requirements.txt"))
+                                .then(function (data) { console.log(chalk.green("〚✔〛Python dependencies checked")); })
+                                .catch(function (err) { console.error(chalk.yellow("〚!〛Warning: Could not install Python dependencies")); });
+                        }
+                        
+                        pm2.start({
+                            watch: false,
+                            daemon: false,
+                            detached: true,
+                            min_uptime: 5000,
+                            watch_delay: 5000,
+                            autorestart: false,
+                            watch_ignore: true,
+                            max_restarts: process.env.MAX_RELOADS,
+                            restart_delay: process.env.RESTART_DELAY,
+                            name: "".concat(process.env.PROCESS_SECRET.toUpperCase(), "_").concat(Folder),
+                            script: "".concat(botPath, "/").concat(botInfo.main),
+                            interpreter: botInfo.interpreter || "python3",
+                            out_file: "./".concat(process.env.SECRET_PATH, "/logs/").concat(Folder, ".strout.log"),
+                            error_file: "./".concat(process.env.SECRET_PATH, "/logs/").concat(Folder, ".strerr.log"),
+                            max_memory_restart: "".concat(parseFloat(process.env.MAXIMUM_RAM_BYTES) / 1000000, "M"),
+                        });
+                    } else {
+                        // JavaScript bot startup (original logic)
+                        if (!fs.existsSync("".concat(botPath, "/node_modules"))) {
+                            Terminal("cd ".concat(botPath, " && npm install"))
+                                .then(function (data) { })
+                                .catch(function (err) { });
+                        }
+                        
+                        pm2.start({
+                            watch: false,
+                            daemon: false,
+                            detached: true,
+                            min_uptime: 5000,
+                            watch_delay: 5000,
+                            autorestart: false,
+                            watch_ignore: true,
+                            max_restarts: process.env.MAX_RELOADS,
+                            restart_delay: process.env.RESTART_DELAY,
+                            name: "".concat(process.env.PROCESS_SECRET.toUpperCase(), "_").concat(Folder),
+                            script: "".concat(botPath, "/").concat(botInfo.main),
+                            out_file: "./".concat(process.env.SECRET_PATH, "/logs/").concat(Folder, ".strout.log"),
+                            error_file: "./".concat(process.env.SECRET_PATH, "/logs/").concat(Folder, ".strerr.log"),
+                            max_memory_restart: "".concat(parseFloat(process.env.MAXIMUM_RAM_BYTES) / 1000000, "M"),
                         });
                     }
                     resolve("\u301A\u2714\u301BSuccessfuly Started ".concat(Folder));

@@ -11,16 +11,17 @@
     <link rel="stylesheet" href="//unicons.iconscout.com/release/v4.0.0/css/line.css" />
     <script src="//cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../file/swal-dark.js"></script>
     <script src="//unpkg.com/@popperjs/core@2"></script>
     <script src="//unpkg.com/tippy.js@6"></script>
     <meta charset="UTF-8" />
 </head>
 
-<body class="dark:bg-charade-700 dark:text-gray-300 small-text">
+<body class="bg-gray-100 dark:bg-charade-700 text-gray-700 dark:text-gray-300 small-text">
     <div class="flex flex-col">
         <div class="flex-1 flex overflow-hidden">
             <nav aria-label="Sidebar"
-                class="hidden md:block md:flex-shrink-0 h-screen dark:bg-charade-700 md:overflow-y-auto">
+                class="hidden md:block md:flex-shrink-0 h-screen bg-white dark:bg-charade-700 md:overflow-y-auto">
                 <div class="relative w-20 flex flex-col p-3 space-y-3" id="sidebar">
                     <script src="/file/sidebar.js"></script>
                 </div>
@@ -38,8 +39,17 @@
                                     class="focus:outline-none border-transparent focus:border-blue-800 border-2 py-3 px-3 bg-gray-100 dark:bg-charade-500 dark:text-gray-300 w-full text-gray-500 shadow rounded-md">
                             </div>
                             <div>
+                                <h3>Bot Type</h3>
+                                <select id="create_app_type"
+                                    class="focus:outline-none border-transparent focus:border-blue-800 border-2 py-3 px-3 dark:bg-charade-500 dark:text-gray-300 bg-gray-100 w-full text-gray-500 shadow rounded-md"
+                                    onchange="updateEntryPlaceholder()">
+                                    <option value="javascript">JavaScript (Node.js)</option>
+                                    <option value="python">Python</option>
+                                </select>
+                            </div>
+                            <div>
                                 <h3>Main Entry</h3>
-                                <input placeholder="Index.js" type="text" id="create_app_entry"
+                                <input placeholder="index.js" type="text" id="create_app_entry"
                                     class="focus:outline-none border-transparent focus:border-blue-800 border-2 py-3 px-3 dark:bg-charade-500 dark:text-gray-300 bg-gray-100 w-full text-gray-500 shadow rounded-md">
                             </div>
                             <div>
@@ -53,6 +63,23 @@
     </div>
 </body>
 
+<script>
+    function updateEntryPlaceholder() {
+        const botType = document.getElementById('create_app_type').value;
+        const entryInput = document.getElementById('create_app_entry');
+        if (botType === 'python') {
+            entryInput.placeholder = 'bot.py';
+            if (entryInput.value === '' || entryInput.value === 'index.js') {
+                entryInput.value = 'bot.py';
+            }
+        } else {
+            entryInput.placeholder = 'index.js';
+            if (entryInput.value === '' || entryInput.value === 'bot.py') {
+                entryInput.value = 'index.js';
+            }
+        }
+    }
+</script>
 <script src="../file/index.js"></script>
 
 

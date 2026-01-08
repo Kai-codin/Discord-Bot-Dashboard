@@ -5,7 +5,26 @@ var router = express.Router();
 var chalk = require("chalk");
 var fs = require("fs");
 var path = require("path");
+var pm2 = require("pm2");
+
+// Import permission checking
+var { PermissionDB } = require("../modules/database");
+
 router.post("/", function (req, res) {
+    // Check if user has access to this bot
+    if (process.env.LOGIN_REQUIRED == "true" && req.session.userId) {
+        var userRole = req.session.role;
+        var botName = req.body.name;
+        
+        if (userRole !== 'admin' && !PermissionDB.hasAccess(req.session.userId, botName)) {
+            res.end(JSON.stringify({
+                Success: false,
+                Message: "You don't have permission to delete this bot",
+            }));
+            return;
+        }
+    }
+
     if (req.body.name) {
         if (fs.existsSync("".concat(up, "/").concat(process.env.SECRET_PATH, "/").concat(req.body.name))) {
             fs.unlink("".concat(up, "/").concat(process.env.SECRET_PATH, "/logs/").concat(req.body.name, ".strout.log"), function (err, data) { });
@@ -19,6 +38,13 @@ router.post("/", function (req, res) {
                     }));
                 }
                 else {
+                    // Remove permissions for this bot
+                    try {
+                        PermissionDB.revokeAllForBot(req.body.name);
+                    } catch (e) {
+                        // Ignore permission cleanup errors
+                    }
+                    
                     Modules.Sync()
                         .then(function (data) {
                         fs.rmdirSync("".concat(up, "/").concat(process.env.SECRET_PATH, "/").concat(req.body.name), {

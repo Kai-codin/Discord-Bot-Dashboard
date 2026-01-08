@@ -127,6 +127,16 @@ document.getElementById("sidebar").innerHTML = `<a
   <path stroke-linecap="round" stroke-linejoin="round" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20" />
 </svg>
 </a>
+    <a
+      href="/users"
+      tip="User Management (Admin)"
+      id="users_link"
+      class="text-gray-400 dark:hover:bg-charade-600 hover:bg-gray-100 transition duration-300 hover:bg-gray-100 transition duration-300 flex-shrink-0 inline-flex items-center justify-center h-14 w-14 rounded-lg"
+    >
+<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+</svg>
+</a>
                                 <button tip="Change Theme"
                                     class="text-gray-400 dark:hover:bg-charade-600 hover:bg-gray-100 transition duration-300 flex-shrink-0 inline-flex items-center justify-center h-14 w-14 rounded-lg"
                                     onclick="toggle_theme()">${

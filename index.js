@@ -15,6 +15,10 @@ var fs = require("fs");
 var app = express();
 var SETTINGS = require("./settings.json");
 var Blacklist = SETTINGS.BLACK_LISTED_DIRS;
+
+// Auth middleware
+var { requireAuth, requireAdmin, requireBotAccess, attachUser } = require("./modules/authMiddleware");
+
 app.set("trust proxy", true);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ extended: true }));
@@ -26,36 +30,48 @@ app.use(session({
     saveUninitialized: true,
     secret: process.env.SECRET_PATH,
 }));
-app.use("/log", require("".concat(__dirname, "/routes/log")));
-app.use("/dirs", require("".concat(__dirname, "/routes/dirs")));
-app.use("/stop", require("".concat(__dirname, "/routes/stop")));
-app.use("/info", require("".concat(__dirname, "/routes/info")));
+
+// Attach user to all requests
+app.use(attachUser);
+
+// Public routes (no auth needed)
 app.use("/file", require("".concat(__dirname, "/routes/file")));
-app.use("/start", require("".concat(__dirname, "/routes/start")));
 app.use("/login", require("".concat(__dirname, "/routes/login")));
-app.use("/login", require("".concat(__dirname, "/routes/login")));
-app.use("/usage", require("".concat(__dirname, "/routes/usage")));
-app.use("/restart", require("".concat(__dirname, "/routes/restart")));
-app.use("/terminal", require("".concat(__dirname, "/routes/terminal")));
-app.use("/dir_size", require("".concat(__dirname, "/routes/dir_size")));
-app.use("/list-apps", require("".concat(__dirname, "/routes/list-apps")));
-app.use("/error_log", require("".concat(__dirname, "/routes/error_log")));
-app.use("/rename_dir", require("".concat(__dirname, "/routes/rename_dir")));
-app.use("/delete_app", require("".concat(__dirname, "/routes/delete_app")));
-app.use("/create_app", require("".concat(__dirname, "/routes/create_app")));
-app.use("/reload_apps", require("".concat(__dirname, "/routes/reload_apps")));
-app.use("/panel_stats", require("".concat(__dirname, "/routes/panel_stats")));
-app.use("/delete_logs", require("".concat(__dirname, "/routes/delete_logs")));
-app.use("/npm_install", require("".concat(__dirname, "/routes/npm_install")));
-app.use("/create_file", require("".concat(__dirname, "/routes/create_file")));
-app.use("/update_main", require("".concat(__dirname, "/routes/update_main")));
-app.use("/update_file", require("".concat(__dirname, "/routes/update_file")));
-app.use("/upload_file", require("".concat(__dirname, "/routes/upload_file")));
-app.use("/delete_[ath]", require("".concat(__dirname, "/routes/delete_logs")));
-app.use("/file_content", require("".concat(__dirname, "/routes/file_content")));
-app.use("/create_folder", require("".concat(__dirname, "/routes/create_folder")));
-app.use("/install_package", require("".concat(__dirname, "/routes/install_package")));
-app.use("/delete_error_logs", require("".concat(__dirname, "/routes/delete_error_logs")));
+
+// User management routes (admin only)
+app.use("/api/users", require("".concat(__dirname, "/routes/users")));
+app.use("/api/permissions", require("".concat(__dirname, "/routes/permissions")));
+
+// Protected routes (require auth)
+app.use("/log", requireAuth, require("".concat(__dirname, "/routes/log")));
+app.use("/dirs", requireAuth, require("".concat(__dirname, "/routes/dirs")));
+app.use("/stop", requireAuth, require("".concat(__dirname, "/routes/stop")));
+app.use("/info", requireAuth, require("".concat(__dirname, "/routes/info")));
+app.use("/start", requireAuth, require("".concat(__dirname, "/routes/start")));
+app.use("/usage", requireAuth, require("".concat(__dirname, "/routes/usage")));
+app.use("/restart", requireAuth, require("".concat(__dirname, "/routes/restart")));
+app.use("/terminal", requireAuth, require("".concat(__dirname, "/routes/terminal")));
+app.use("/dir_size", requireAuth, require("".concat(__dirname, "/routes/dir_size")));
+app.use("/list-apps", requireAuth, require("".concat(__dirname, "/routes/list-apps")));
+app.use("/error_log", requireAuth, require("".concat(__dirname, "/routes/error_log")));
+app.use("/rename_dir", requireAuth, require("".concat(__dirname, "/routes/rename_dir")));
+app.use("/delete_app", requireAuth, require("".concat(__dirname, "/routes/delete_app")));
+app.use("/create_app", requireAuth, require("".concat(__dirname, "/routes/create_app")));
+app.use("/reload_apps", requireAuth, require("".concat(__dirname, "/routes/reload_apps")));
+app.use("/panel_stats", requireAuth, require("".concat(__dirname, "/routes/panel_stats")));
+app.use("/delete_logs", requireAuth, require("".concat(__dirname, "/routes/delete_logs")));
+app.use("/npm_install", requireAuth, require("".concat(__dirname, "/routes/npm_install")));
+app.use("/pip_install", requireAuth, require("".concat(__dirname, "/routes/pip_install")));
+app.use("/create_file", requireAuth, require("".concat(__dirname, "/routes/create_file")));
+app.use("/update_main", requireAuth, require("".concat(__dirname, "/routes/update_main")));
+app.use("/update_file", requireAuth, require("".concat(__dirname, "/routes/update_file")));
+app.use("/upload_file", requireAuth, require("".concat(__dirname, "/routes/upload_file")));
+app.use("/delete_path", requireAuth, require("".concat(__dirname, "/routes/delete_path")));
+app.use("/file_content", requireAuth, require("".concat(__dirname, "/routes/file_content")));
+app.use("/create_folder", requireAuth, require("".concat(__dirname, "/routes/create_folder")));
+app.use("/install_package", requireAuth, require("".concat(__dirname, "/routes/install_package")));
+app.use("/delete_error_logs", requireAuth, require("".concat(__dirname, "/routes/delete_error_logs")));
+app.use("/output_log", requireAuth, require("".concat(__dirname, "/routes/output_log")));
 app.use("*", function (req, res, next) {
     if (process.env.LOGIN_REQUIRED == "true") {
         if (!req.session.username) {

@@ -11,16 +11,17 @@
     <link rel="stylesheet" href="//unicons.iconscout.com/release/v4.0.0/css/line.css" />
     <script src="//cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../file/swal-dark.js"></script>
     <script src="//unpkg.com/@popperjs/core@2"></script>
     <script src="//unpkg.com/tippy.js@6"></script>
     <meta charset="UTF-8" />
 </head>
 
-<body class="dark:bg-charade-700 dark:text-gray-300 small-text">
+<body class="bg-gray-100 dark:bg-charade-700 text-gray-700 dark:text-gray-300 small-text">
     <div class="flex flex-col">
         <div class="flex-1 flex overflow-hidden">
             <nav aria-label="Sidebar"
-                class="hidden md:block md:flex-shrink-0 h-screen dark:bg-charade-700 md:overflow-y-auto">
+                class="hidden md:block md:flex-shrink-0 h-screen bg-white dark:bg-charade-700 md:overflow-y-auto">
                 <div class="relative w-20 flex flex-col p-3 space-y-3" id="sidebar">
                     <script src="/file/sidebar.js"></script>
                 </div>
@@ -45,20 +46,21 @@
                                 </div>
                             </div>
                             <div class="space-y-3 dark:text-gray-300 dark:text-gray-300 md:space-y-3">
-                                <button tip="Install All Requiblue Modules" onclick="npm_install()"
+                                <button tip="Install All Required Modules" onclick="install_dependencies()"
                                     class="mt-3 rounded-md bg-blue-500 dark:bg-blue text-white py-3 w-full lg:w-auto px-10">Download
                                     Packages</button>
                             </div>
                             <div class="mt-5  dark:text-gray-300">
                                 <div>
                                     <h3>Update Main Entry</h3>
-                                    <input placeholder="Index.js" type="text" id="update_app_entry"
+                                    <input placeholder="index.js or bot.py" type="text" id="update_app_entry"
                                         class="focus:outline-none border-transparent focus:border-blue-800 border-2 py-3 px-3 bg-gray-100 dark:bg-charade-500 w-full text-gray-500 dark:text-gray-300 shadow rounded-md">
                                 </div>
                                 <button onclick="update_main()"
                                     class="rounded-md bg-blue-500 mt-3 dark:bg-blue text-white py-3 w-full lg:w-auto px-10">Update</button>
                             </div>
-                            <div class="mt-5  dark:text-gray-300">
+                            <!-- JavaScript Package Installation -->
+                            <div id="js_package_section" class="mt-5 dark:text-gray-300">
                                 <div>
                                     <h3 tip="Download A Node Package To Your Bot">Download Node Package</h3>
                                     <input placeholder="discord.js" type="text" id="download_package_box"
@@ -66,6 +68,16 @@
                                 </div>
                                 <button onclick="download_package()"
                                     class="rounded-md bg-blue-500 mt-3 dark:bg-blue text-white py-3 w-full lg:w-auto px-10">Install</button>
+                            </div>
+                            <!-- Python Package Installation -->
+                            <div id="py_package_section" class="mt-5 dark:text-gray-300" style="display: none;">
+                                <div>
+                                    <h3 tip="Download A Python Package To Your Bot">Download Python Package</h3>
+                                    <input placeholder="discord.py" type="text" id="download_pip_package_box"
+                                        class="focus:outline-none border-transparent focus:border-blue-800 border-2 py-3 px-3 bg-gray-100 dark:bg-charade-500 w-full text-gray-500 dark:text-gray-300 shadow rounded-md">
+                                </div>
+                                <button onclick="download_pip_package()"
+                                    class="rounded-md bg-green-500 mt-3 text-white py-3 w-full lg:w-auto px-10">Install (pip)</button>
                             </div>
                         </div>
                         <div class="space-y-4 text-gray-600 mt-8 rounded-md py-5 px-5 dark:bg-charade-600 shadow">

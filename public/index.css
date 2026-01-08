@@ -74,5 +74,146 @@ body {
   font-size: 12px !important;
 }
 
+/* SweetAlert2 Dark Mode Styles - using html.dark since dark class is on documentElement */
+/* Also handle [data-theme="dark"] and direct .swal2-popup styling when JS sets background */
+html.dark .swal2-popup,
+html[class*="dark"] .swal2-popup,
+body.dark .swal2-popup,
+.dark .swal2-popup,
+.swal2-popup.swal2-modal[style*="rgb(30, 33, 40)"],
+.swal2-popup.swal2-modal[style*="#1E2128"] {
+  background: #1E2128 !important;
+  color: #d1d5db !important;
+}
+
+html.dark .swal2-container,
+html[class*="dark"] .swal2-container,
+.dark .swal2-container {
+  background: rgba(0, 0, 0, 0.6) !important;
+}
+
+html.dark .swal2-title,
+.dark .swal2-title {
+  color: #d1d5db !important;
+}
+
+html.dark .swal2-html-container,
+.dark .swal2-html-container {
+  color: #9ca3af !important;
+}
+
+html.dark .swal2-content,
+.dark .swal2-content {
+  color: #9ca3af !important;
+}
+
+html.dark .swal2-input,
+html.dark .swal2-textarea,
+html.dark .swal2-select,
+.dark .swal2-input,
+.dark .swal2-textarea,
+.dark .swal2-select {
+  background: #2B2F39 !important;
+  color: #d1d5db !important;
+  border-color: #3B4252 !important;
+}
+
+html.dark .swal2-input:focus,
+html.dark .swal2-textarea:focus,
+html.dark .swal2-select:focus,
+.dark .swal2-input:focus,
+.dark .swal2-textarea:focus,
+.dark .swal2-select:focus {
+  border-color: #3082CF !important;
+  box-shadow: 0 0 0 3px rgba(48, 130, 207, 0.3) !important;
+}
+
+html.dark .swal2-input::placeholder,
+.dark .swal2-input::placeholder {
+  color: #6b7280 !important;
+}
+
+html.dark .swal2-validation-message,
+.dark .swal2-validation-message {
+  background: #374151 !important;
+  color: #fca5a5 !important;
+}
+
+html.dark .swal2-footer,
+.dark .swal2-footer {
+  border-top-color: #374151 !important;
+  color: #9ca3af !important;
+}
+
+html.dark .swal2-close,
+.dark .swal2-close {
+  color: #9ca3af !important;
+}
+
+html.dark .swal2-close:hover,
+.dark .swal2-close:hover {
+  color: #d1d5db !important;
+}
+
+html.dark .swal2-icon.swal2-error,
+.dark .swal2-icon.swal2-error {
+  border-color: #ef4444 !important;
+  color: #ef4444 !important;
+}
+
+html.dark .swal2-icon.swal2-error [class^=swal2-x-mark-line],
+.dark .swal2-icon.swal2-error [class^=swal2-x-mark-line] {
+  background-color: #ef4444 !important;
+}
+
+html.dark .swal2-icon.swal2-success,
+.dark .swal2-icon.swal2-success {
+  border-color: #22c55e !important;
+  color: #22c55e !important;
+}
+
+html.dark .swal2-icon.swal2-success [class^=swal2-success-line],
+.dark .swal2-icon.swal2-success [class^=swal2-success-line] {
+  background-color: #22c55e !important;
+}
+
+html.dark .swal2-icon.swal2-success .swal2-success-ring,
+.dark .swal2-icon.swal2-success .swal2-success-ring {
+  border-color: rgba(34, 197, 94, 0.3) !important;
+}
+
+html.dark .swal2-icon.swal2-warning,
+.dark .swal2-icon.swal2-warning {
+  border-color: #f59e0b !important;
+  color: #f59e0b !important;
+}
+
+html.dark .swal2-icon.swal2-info,
+.dark .swal2-icon.swal2-info {
+  border-color: #3b82f6 !important;
+  color: #3b82f6 !important;
+}
+
+html.dark .swal2-icon.swal2-question,
+.dark .swal2-icon.swal2-question {
+  border-color: #8b5cf6 !important;
+  color: #8b5cf6 !important;
+}
+
+html.dark .swal2-styled.swal2-confirm,
+.dark .swal2-styled.swal2-confirm {
+  background-color: #3082CF !important;
+}
+
+html.dark .swal2-styled.swal2-cancel,
+.dark .swal2-styled.swal2-cancel {
+  background-color: #4b5563 !important;
+}
+
+html.dark .swal2-styled.swal2-deny,
+.dark .swal2-styled.swal2-deny {
+  background-color: #ef4444 !important;
+}
+
 *:hover {
 }

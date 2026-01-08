@@ -1,3 +1,51 @@
+// Configure SweetAlert2 for dark mode support
+function isDarkMode() {
+  return document.documentElement.classList.contains('dark') || localStorage.theme === 'dark';
+}
+
+// Get dark mode Swal options
+function getDarkModeOptions() {
+  if (isDarkMode()) {
+    return {
+      background: '#1E2128',
+      color: '#d1d5db',
+      confirmButtonColor: '#3082CF',
+      cancelButtonColor: '#4b5563',
+    };
+  }
+  return {};
+}
+
+// Override Swal.fire to apply dark mode styling
+const originalSwalFire = Swal.fire;
+Swal.fire = function(...args) {
+  const darkOptions = getDarkModeOptions();
+  
+  // If first argument is an object, merge in dark mode settings
+  if (args.length > 0 && typeof args[0] === 'object') {
+    // In dark mode, force dark background/color unless explicitly set to something else
+    if (isDarkMode()) {
+      args[0] = {
+        ...args[0],
+        background: darkOptions.background,
+        color: darkOptions.color,
+        confirmButtonColor: args[0].confirmButtonColor || darkOptions.confirmButtonColor,
+        cancelButtonColor: args[0].cancelButtonColor || darkOptions.cancelButtonColor,
+      };
+    }
+  } else if (args.length >= 1 && typeof args[0] === 'string') {
+    // Simple Swal.fire(title, text, icon) format
+    const options = {
+      title: args[0],
+      text: args[1] || '',
+      icon: args[2] || undefined,
+      ...darkOptions
+    };
+    return originalSwalFire.call(this, options);
+  }
+  return originalSwalFire.apply(this, args);
+};
+
 function sync_apps() {
   fetch(`../reload_apps`)
     .then((response) => {
@@ -37,9 +85,38 @@ function isFolder(type) {
   }
 }
 
+// Toggle package sections based on selected bot type
+function updatePackageSections() {
+  const manageSelect = document.getElementById("manage_apps_select");
+  const jsSection = document.getElementById("js_package_section");
+  const pySection = document.getElementById("py_package_section");
+  
+  if (manageSelect && jsSection && pySection) {
+    const selectedOption = manageSelect.options[manageSelect.selectedIndex];
+    const botType = selectedOption ? selectedOption.getAttribute("data-type") : "javascript";
+    
+    if (botType === "python") {
+      jsSection.style.display = "none";
+      pySection.style.display = "block";
+    } else {
+      jsSection.style.display = "block";
+      pySection.style.display = "none";
+    }
+  }
+}
+
+// Add event listener for manage app select change
+document.addEventListener("DOMContentLoaded", function() {
+  const manageSelect = document.getElementById("manage_apps_select");
+  if (manageSelect) {
+    manageSelect.addEventListener("change", updatePackageSections);
+  }
+});
+
 function create_app() {
   let Name = document.getElementById("create_app_name");
   let Entry = document.getElementById("create_app_entry");
+  let BotType = document.getElementById("create_app_type");
   fetch("../create_app", {
     method: "POST",
     headers: {
@@ -48,6 +125,7 @@ function create_app() {
     body: JSON.stringify({
       name: Name.value,
       main_entry: Entry.value,
+      bot_type: BotType ? BotType.value : 'javascript',
     }),
   })
     .then((res) => res.json())
@@ -201,13 +279,18 @@ async function renderDashboard() {
       if (document.getElementById("delete_logs_app_box")) {
         delete_logs_app_box.innerHTML = null;
       }
+      if (document.getElementById("manage_apps_select")) {
+        manage_apps_select.innerHTML = '<option value="">NONE</option>';
+      }
       Apps.forEach((Process) => {
         AppName = `${Process.App.Name || "Unknown"}`;
+        BotType = Process.Bot_Type || Process.App.Type || "javascript";
+        TypeLabel = BotType === "python" ? " (Python)" : " (JS)";
         if (document.getElementById("delete_app_box")) {
-          delete_app_box.innerHTML += `<option value="${AppName}">${AppName}</option>`;
+          delete_app_box.innerHTML += `<option value="${AppName}">${AppName}${TypeLabel}</option>`;
         }
         if (document.getElementById("manage_apps_select")) {
-          manage_apps_select.innerHTML += `<option class="py-3 " value="${AppName}">${AppName}</option>`;
+          manage_apps_select.innerHTML += `<option class="py-3" value="${AppName}" data-type="${BotType}">${AppName}${TypeLabel}</option>`;
         }
         if (document.getElementById("delete_logs_app_box")) {
           delete_logs_app_box.innerHTML += `<option value="${AppName}">${AppName}</option>`;
@@ -229,6 +312,12 @@ async function renderDashboard() {
                                         <div class=" dark:text-gray-200 text-gray-900">${
                                           Process.App.Name || "Unknown"
                                         }</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span
+                                            class="px-3 py-1 uppercase inline-flex leading-5 rounded-full ${BotType === 'python' ? 'bg-green-500' : 'bg-yellow-500'} text-white font-bold text-xs">
+                                            ${BotType === 'python' ? 'Python' : 'JavaScript'}
+                                        </span>
                                     </td>
                                     <td class="px-6 py-4 dark:text-gray-200 whitespace-nowrap">
                                         <span
@@ -424,7 +513,20 @@ function StatusToButton(status) {
 }
 
 function Err(Message) {
-  Swal.fire("Basilisk Says", Message, "error").then((result) => {
+  if (localStorage.theme == "dark") {
+    ModalBackground = "#1B1C24";
+    ModalText = "#ffffff";
+  } else {
+    ModalText = "#3d3d3d";
+    ModalBackground = "#ffffff";
+  }
+  Swal.fire({
+    title: "Basilisk Says",
+    text: Message,
+    icon: "error",
+    background: ModalBackground,
+    color: ModalText,
+  }).then((result) => {
     window.location.reload();
   });
 }
@@ -514,6 +616,68 @@ function download_package() {
       }
     })
     .catch((err) => console.log(err));
+}
+
+// Download Python package via pip
+function download_pip_package() {
+  Side_Info(
+    `Installing ${document.getElementById("download_pip_package_box").value} For ${
+      document.getElementById("manage_apps_select").value
+    }`
+  );
+  fetch("../pip_install", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      bot_app: document.getElementById("manage_apps_select").value,
+      package_name: document.getElementById("download_pip_package_box").value,
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      document.getElementById("download_pip_package_box").value = null;
+      if (data.Success) {
+        Side_Success(data.Message);
+      } else {
+        Side_Err(data.Message);
+      }
+    })
+    .catch((err) => console.log(err));
+}
+
+// Install all dependencies (npm or pip based on bot type)
+async function install_dependencies() {
+  if (document.getElementById("manage_apps_select")) {
+    const selectedApp = document.getElementById("manage_apps_select");
+    const appName = selectedApp.value;
+    const appType = selectedApp.options[selectedApp.selectedIndex].getAttribute("data-type") || "javascript";
+    
+    if (appType === "python") {
+      Side_Info(`Python Dependencies Are Being Installed For ${appName}`);
+      fetch(`../pip_install/${appName}`)
+        .then((response) => response.json())
+        .then((myJson) => {
+          if (myJson.Success) {
+            Side_Success(myJson.Message);
+          } else {
+            Side_Err(myJson.Message);
+          }
+        });
+    } else {
+      Side_Info(`Node Modules Are Being Installed For ${appName}`);
+      fetch(`../npm_install/${appName}`)
+        .then((response) => response.json())
+        .then((myJson) => {
+          if (myJson.Success) {
+            Side_Success(myJson.Message);
+          } else {
+            Side_Err(myJson.Message);
+          }
+        });
+    }
+  }
 }
 
 function show_log(Name) {
@@ -875,12 +1039,7 @@ async function rename_dir(path, name, data) {
   }
   const { value: NewName } = await Swal.fire({
     input: "text",
-    customClass: {
-      popup: "colored-toast",
-    },
-    background: "#1B1C24",
     confirmButtonText: "Change",
-    color: "#fff",
     inputValue: name,
     inputPlaceholder: `Enter New Name For ${name}`,
   });

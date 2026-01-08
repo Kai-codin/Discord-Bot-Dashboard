@@ -30,6 +30,17 @@ router.post("/", function (req, res) {
     }
     Name = req.body.name;
     MainEntry = req.body.main_entry;
+    BotType = req.body.bot_type || 'javascript'; // Default to javascript if not specified
+    
+    // Validate bot type
+    if (!['javascript', 'python'].includes(BotType)) {
+        res.end(JSON.stringify({
+            Success: false,
+            Message: "Invalid bot type. Must be 'javascript' or 'python'",
+        }));
+        return;
+    }
+    
     if (fs.existsSync("".concat(up, "/").concat(process.env.SECRET_PATH, "/").concat(Name))) {
         res.end(JSON.stringify({
             Success: false,
@@ -40,12 +51,12 @@ router.post("/", function (req, res) {
         fs.mkdir("".concat(up, "/").concat(process.env.SECRET_PATH, "/").concat(Name), function (err, data) {
             fs.open("".concat(up, "/").concat(process.env.SECRET_PATH, "/logs/").concat(Name, ".strerr.log"), "w", function () {
                 fs.open("".concat(up, "/").concat(process.env.SECRET_PATH, "/logs/").concat(Name, ".strout.log"), "w", function () {
-                    Modules.InsertBase(Name, MainEntry);
+                    Modules.InsertBase(Name, MainEntry, BotType);
                     Modules.Sync()
                         .then(function (data) {
                         res.end(JSON.stringify({
                             Success: true,
-                            Message: "Successfuly Created Application",
+                            Message: "Successfuly Created ".concat(BotType === 'python' ? 'Python' : 'JavaScript', " Application"),
                         }));
                     })
                         .catch(function (err) {

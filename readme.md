@@ -9,6 +9,41 @@
 - Web-based terminal/shell added
 - Updated `.env`, new setting options added
 - License changed from `CC-BY-4.0` to `MIT`
+- **Python Bot Support** - Create and manage Python Discord bots alongside JavaScript bots!
+- **Multi-User Authentication** - Database-backed user management with role-based access control!
+
+## Features
+
+### Multi-User Authentication & Permissions
+DBP now supports multiple users with fine-grained permissions:
+
+- **User Roles**: Admin (full access) and User (restricted access)
+- **Bot Permissions**: Control which bots each user can access
+- **SQLite Database**: Persistent user and permission storage
+- **Admin Panel**: Manage users and permissions from `/users` page
+- **Default Admin**: First user created from `USERNAME` and `PASSWORD` in `.env`
+
+#### User Roles
+- **Admin**: Full access to all bots and user management
+- **User**: Only access to bots they have been granted permission to
+
+#### Setting Up Users
+1. Enable login by setting `LOGIN_REQUIRED=true` in `.env`
+2. The default admin user is created from your `.env` credentials
+3. Access the user management page at `/users` (admin only)
+4. Create new users and assign bot permissions
+
+### Multi-Language Bot Support
+DBP now supports both **JavaScript (Node.js)** and **Python** Discord bots:
+
+- **JavaScript Bots**: Use `discord.js` with Node.js runtime
+- **Python Bots**: Use `discord.py` with Python 3 runtime
+
+When creating a new bot, simply select the bot type from the dropdown menu. The dashboard will automatically:
+- Generate appropriate template files (`index.js` for JS, `bot.py` for Python)
+- Create dependency files (`package.json` for JS, `requirements.txt` for Python)
+- Install dependencies using the correct package manager (`npm` for JS, `pip` for Python)
+- Start bots with the correct interpreter
 
 ## Installation
 
@@ -19,6 +54,9 @@
 npm i pm2 -g
 ## Install forever Globally
 npm i forever -g
+## For Python bot support, ensure Python 3 and pip are installed
+python3 --version
+pip3 --version
 ```
 
 ```shell
@@ -57,7 +95,13 @@ Once installation is done, you can change the `.env.example` file name to `.env`
 
 ### Login System
 
-By default the login system is disabled but you can enable it by changing `LOGIN_REQUIRED=false` to `LOGIN_REQUIRED=true` in your `.env` file. Credentials can be set from the env too.
+By default the login system is disabled but you can enable it by changing `LOGIN_REQUIRED=false` to `LOGIN_REQUIRED=true` in your `.env` file. 
+
+When login is enabled:
+- Default admin credentials are created from `USERNAME` and `PASSWORD` in `.env`
+- Users are stored in a SQLite database (`database/panel.db`)
+- Admins can manage users from the `/users` page
+- Regular users only see bots they have permission to access
 
 ### Final Setup
 

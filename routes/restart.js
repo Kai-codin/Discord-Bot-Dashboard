@@ -11,7 +11,11 @@ var https = require("https");
 var pm2 = require("pm2");
 var fs = require("fs");
 var router = express.Router();
-router.get("/:name", function (req, res) {
+
+// Import permission checking
+var { requireBotAccess } = require("../modules/authMiddleware");
+
+router.get("/:name", requireBotAccess, function (req, res) {
     pm2.restart("".concat(process.env.PROCESS_SECRET.toUpperCase(), "_").concat(req.params.name), function (err, apps) {
         if (err) {
             JSON.stringify(err);

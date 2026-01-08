@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>My Panel - User Management</title>
+    <link rel="stylesheet" href="../file/index.css" />
+    <link rel="icon" href="../file/favicon.png" />
+    <link rel="stylesheet" href="../file/tailwinds.css" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="//unicons.iconscout.com/release/v4.0.0/css/line.css" />
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../file/swal-dark.js"></script>
+    <script src="//unpkg.com/@popperjs/core@2"></script>
+    <script src="//unpkg.com/tippy.js@6"></script>
+    <meta charset="UTF-8" />
+</head>
+
+<body class="bg-gray-100 dark:bg-charade-700 text-gray-700 dark:text-gray-300 small-text">
+    <div class="flex flex-col">
+        <div class="flex-1 flex overflow-hidden">
+            <nav aria-label="Sidebar"
+                class="hidden md:block md:flex-shrink-0 h-screen bg-white dark:bg-charade-700 md:overflow-y-auto">
+                <div class="relative w-20 flex flex-col p-3 space-y-3" id="sidebar">
+                    <script src="/file/sidebar.js"></script>
+                </div>
+            </nav>
+
+            <main class="min-w-0 flex-1 lg:flex">
+                <section aria-labelledby="primary-heading"
+                    class="min-w-0 flex-1 h-full flex flex-col overflow-y-auto lg:order-last p-5">
+                    
+                    <!-- Admin Only Notice -->
+                    <div id="admin_notice" class="hidden bg-red-500 text-white p-4 rounded-md mb-5">
+                        <i class="uil uil-exclamation-triangle"></i> This page requires admin access.
+                    </div>
+
+                    <!-- Create User Section -->
+                    <div class="bg-white dark:bg-charade-600 w-full space-y-4 text-gray-600 rounded-md dark:text-gray-300 shadow py-5 px-5 mb-5">
+                        <h1 class="text-gray-600 text-xl font-semibold dark:text-gray-300">
+                            <i class="uil uil-user-plus"></i> Create New User
+                        </h1>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <h3>Username</h3>
+                                <input placeholder="username" type="text" id="new_username"
+                                    class="focus:outline-none border-transparent focus:border-blue-800 border-2 py-3 px-3 bg-gray-100 dark:bg-charade-500 dark:text-gray-300 w-full text-gray-500 shadow rounded-md">
+                            </div>
+                            <div>
+                                <h3>Password</h3>
+                                <input placeholder="password" type="password" id="new_password"
+                                    class="focus:outline-none border-transparent focus:border-blue-800 border-2 py-3 px-3 bg-gray-100 dark:bg-charade-500 dark:text-gray-300 w-full text-gray-500 shadow rounded-md">
+                            </div>
+                            <div>
+                                <h3>Role</h3>
+                                <select id="new_role"
+                                    class="focus:outline-none border-transparent focus:border-blue-800 border-2 py-3 px-3 dark:bg-charade-500 dark:text-gray-300 bg-gray-100 w-full text-gray-500 shadow rounded-md">
+                                    <option value="user">User</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            </div>
+                            <div class="flex items-end">
+                                <button onclick="createUser()"
+                                    class="rounded-md bg-blue-500 text-white py-3 w-full px-6">
+                                    <i class="uil uil-plus"></i> Create User
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Users List -->
+                    <div class="bg-white dark:bg-charade-600 w-full text-gray-600 rounded-md dark:text-gray-300 shadow py-5 px-5 mb-5">
+                        <h1 class="text-gray-600 text-xl font-semibold dark:text-gray-300 mb-4">
+                            <i class="uil uil-users-alt"></i> Users
+                        </h1>
+                        <div class="overflow-x-auto">
+                            <table class="w-full rounded-md">
+                                <thead class="bg-gray-50 dark:bg-charade-500 font-bold rounded-md">
+                                    <tr class="rounded-md text-gray-600 dark:text-gray-300">
+                                        <th class="px-4 py-3 text-left text-xs uppercase">ID</th>
+                                        <th class="px-4 py-3 text-left text-xs uppercase">Username</th>
+                                        <th class="px-4 py-3 text-left text-xs uppercase">Role</th>
+                                        <th class="px-4 py-3 text-left text-xs uppercase">Last Login</th>
+                                        <th class="px-4 py-3 text-left text-xs uppercase">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users_table" class="divide-y divide-gray-200 dark:divide-charade-500">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Bot Permissions Section -->
+                    <div class="bg-white dark:bg-charade-600 w-full text-gray-600 rounded-md dark:text-gray-300 shadow py-5 px-5">
+                        <h1 class="text-gray-600 text-xl font-semibold dark:text-gray-300 mb-4">
+                            <i class="uil uil-shield-check"></i> Bot Permissions
+                        </h1>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div>
+                                <h3>Select User</h3>
+                                <select id="perm_user_select"
+                                    onchange="loadUserPermissions()"
+                                    class="focus:outline-none border-transparent focus:border-blue-800 border-2 py-3 px-3 dark:bg-charade-500 dark:text-gray-300 bg-gray-100 w-full text-gray-500 shadow rounded-md">
+                                    <option value="">-- Select User --</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <h3>Accessible Bots</h3>
+                                <div id="bot_checkboxes" class="bg-gray-100 dark:bg-charade-500 p-4 rounded-md max-h-48 overflow-y-auto">
+                                    <p class="text-gray-400">Select a user to manage permissions</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="admin_user_notice" class="hidden bg-blue-500 text-white p-3 rounded-md mb-4">
+                            <i class="uil uil-info-circle"></i> Admin users have access to all bots automatically.
+                        </div>
+                        <button onclick="savePermissions()" id="save_perms_btn"
+                            class="rounded-md bg-green-500 text-white py-3 px-6 disabled:opacity-50" disabled>
+                            <i class="uil uil-save"></i> Save Permissions
+                        </button>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+</body>
+
+<script>
+let currentUsers = [];
+let allBots = [];
+let selectedUserId = null;
+
+// Check if user is admin
+async function checkAdminAccess() {
+    try {
+        const response = await fetch('/login/me');
+        const data = await response.json();
+        if (!data.Success || data.User.role !== 'admin') {
+            document.getElementById('admin_notice').classList.remove('hidden');
+            document.querySelector('section').innerHTML = `
+                <div class="bg-red-500 text-white p-8 rounded-md text-center">
+                    <i class="uil uil-exclamation-triangle text-4xl"></i>
+                    <h2 class="text-2xl mt-4">Access Denied</h2>
+                    <p class="mt-2">This page requires admin privileges.</p>
+                    <a href="/home" class="inline-block mt-4 bg-white text-red-500 px-6 py-2 rounded-md">Go to Home</a>
+                </div>
+            `;
+            return false;
+        }
+        return true;
+    } catch (err) {
+        console.error('Error checking admin access:', err);
+        return false;
+    }
+}
+
+// Load users
+async function loadUsers() {
+    try {
+        const response = await fetch('/api/users');
+        const data = await response.json();
+        if (data.Success) {
+            currentUsers = data.Data;
+            renderUsers();
+            populateUserSelect();
+        }
+    } catch (err) {
+        console.error('Error loading users:', err);
+    }
+}
+
+// Render users table
+function renderUsers() {
+    const table = document.getElementById('users_table');
+    table.innerHTML = currentUsers.map(user => `
+        <tr class="dark:bg-charade-600">
+            <td class="px-4 py-3">${user.id}</td>
+            <td class="px-4 py-3 font-medium">${user.username}</td>
+            <td class="px-4 py-3">
+                <span class="px-3 py-1 rounded-full text-xs font-bold ${user.role === 'admin' ? 'bg-purple-500 text-white' : 'bg-gray-500 text-white'}">
+                    ${user.role.toUpperCase()}
+                </span>
+            </td>
+            <td class="px-4 py-3 text-sm">${user.last_login ? new Date(user.last_login).toLocaleString() : 'Never'}</td>
+            <td class="px-4 py-3 space-x-2">
+                <button onclick="editUser(${user.id})" class="bg-blue-500 text-white px-3 py-1 rounded text-sm">
+                    <i class="uil uil-edit"></i>
+                </button>
+                <button onclick="resetPassword(${user.id}, '${user.username}')" class="bg-yellow-500 text-white px-3 py-1 rounded text-sm">
+                    <i class="uil uil-key-skeleton"></i>
+                </button>
+                <button onclick="deleteUser(${user.id}, '${user.username}')" class="bg-red-500 text-white px-3 py-1 rounded text-sm">
+                    <i class="uil uil-trash"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Populate user select for permissions
+function populateUserSelect() {
+    const select = document.getElementById('perm_user_select');
+    select.innerHTML = '<option value="">-- Select User --</option>' + 
+        currentUsers.map(u => `<option value="${u.id}">${u.username} (${u.role})</option>`).join('');
+}
+
+// Create user
+async function createUser() {
+    const username = document.getElementById('new_username').value.trim();
+    const password = document.getElementById('new_password').value;
+    const role = document.getElementById('new_role').value;
+
+    if (!username || !password) {
+        Swal.fire('Error', 'Username and password are required', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password, role })
+        });
+        const data = await response.json();
+        
+        if (data.Success) {
+            Swal.fire('Success', 'User created successfully', 'success');
+            document.getElementById('new_username').value = '';
+            document.getElementById('new_password').value = '';
+            loadUsers();
+        } else {
+            Swal.fire('Error', data.Message, 'error');
+        }
+    } catch (err) {
+        Swal.fire('Error', 'Failed to create user', 'error');
+    }
+}
+
+// Edit user
+async function editUser(userId) {
+    const user = currentUsers.find(u => u.id === userId);
+    if (!user) return;
+
+    const { value: formValues } = await Swal.fire({
+        title: `Edit User: ${user.username}`,
+        html: `
+            <input id="swal-username" class="swal2-input" placeholder="Username" value="${user.username}">
+            <select id="swal-role" class="swal2-select">
+                <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
+                <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+            </select>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        preConfirm: () => ({
+            username: document.getElementById('swal-username').value,
+            role: document.getElementById('swal-role').value
+        })
+    });
+
+    if (formValues) {
+        try {
+            const response = await fetch(`/api/users/${userId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formValues)
+            });
+            const data = await response.json();
+            
+            if (data.Success) {
+                Swal.fire('Success', 'User updated', 'success');
+                loadUsers();
+            } else {
+                Swal.fire('Error', data.Message, 'error');
+            }
+        } catch (err) {
+            Swal.fire('Error', 'Failed to update user', 'error');
+        }
+    }
+}
+
+// Reset password
+async function resetPassword(userId, username) {
+    const { value: newPassword } = await Swal.fire({
+        title: `Reset Password for ${username}`,
+        input: 'password',
+        inputPlaceholder: 'Enter new password',
+        showCancelButton: true,
+        inputValidator: (value) => {
+            if (!value || value.length < 4) {
+                return 'Password must be at least 4 characters';
+            }
+        }
+    });
+
+    if (newPassword) {
+        try {
+            const response = await fetch(`/api/users/${userId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: newPassword })
+            });
+            const data = await response.json();
+            
+            if (data.Success) {
+                Swal.fire('Success', 'Password reset successfully', 'success');
+            } else {
+                Swal.fire('Error', data.Message, 'error');
+            }
+        } catch (err) {
+            Swal.fire('Error', 'Failed to reset password', 'error');
+        }
+    }
+}
+
+// Delete user
+async function deleteUser(userId, username) {
+    const result = await Swal.fire({
+        title: `Delete ${username}?`,
+        text: "This action cannot be undone. All permissions will also be removed.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Delete'
+    });
+
+    if (result.isConfirmed) {
+        try {
+            const response = await fetch(`/api/users/${userId}`, {
+                method: 'DELETE'
+            });
+            const data = await response.json();
+            
+            if (data.Success) {
+                Swal.fire('Deleted', 'User has been deleted', 'success');
+                loadUsers();
+            } else {
+                Swal.fire('Error', data.Message, 'error');
+            }
+        } catch (err) {
+            Swal.fire('Error', 'Failed to delete user', 'error');
+        }
+    }
+}
+
+// Load all bots for permissions
+async function loadAllBots() {
+    try {
+        const response = await fetch('/list-apps');
+        const data = await response.json();
+        if (Array.isArray(data)) {
+            allBots = data.map(app => app.App.Name);
+        }
+    } catch (err) {
+        console.error('Error loading bots:', err);
+    }
+}
+
+// Load user permissions
+async function loadUserPermissions() {
+    const userId = document.getElementById('perm_user_select').value;
+    const container = document.getElementById('bot_checkboxes');
+    const saveBtn = document.getElementById('save_perms_btn');
+    const adminNotice = document.getElementById('admin_user_notice');
+    
+    if (!userId) {
+        container.innerHTML = '<p class="text-gray-400">Select a user to manage permissions</p>';
+        saveBtn.disabled = true;
+        adminNotice.classList.add('hidden');
+        return;
+    }
+
+    selectedUserId = parseInt(userId);
+    const user = currentUsers.find(u => u.id === selectedUserId);
+
+    try {
+        const response = await fetch(`/api/permissions/user/${userId}`);
+        const data = await response.json();
+        
+        if (data.Success) {
+            if (data.Data.isAdmin) {
+                adminNotice.classList.remove('hidden');
+                saveBtn.disabled = true;
+                container.innerHTML = allBots.map(bot => `
+                    <label class="flex items-center space-x-2 mb-2">
+                        <input type="checkbox" checked disabled class="form-checkbox h-5 w-5 text-blue-500">
+                        <span>${bot}</span>
+                    </label>
+                `).join('') || '<p class="text-gray-400">No bots found</p>';
+            } else {
+                adminNotice.classList.add('hidden');
+                saveBtn.disabled = false;
+                const userPerms = data.Data.permissions;
+                container.innerHTML = allBots.map(bot => `
+                    <label class="flex items-center space-x-2 mb-2">
+                        <input type="checkbox" value="${bot}" ${userPerms.includes(bot) ? 'checked' : ''} 
+                            class="bot-perm-checkbox form-checkbox h-5 w-5 text-blue-500">
+                        <span>${bot}</span>
+                    </label>
+                `).join('') || '<p class="text-gray-400">No bots found</p>';
+            }
+        }
+    } catch (err) {
+        console.error('Error loading permissions:', err);
+    }
+}
+
+// Save permissions
+async function savePermissions() {
+    if (!selectedUserId) return;
+
+    const checkboxes = document.querySelectorAll('.bot-perm-checkbox:checked');
+    const bots = Array.from(checkboxes).map(cb => cb.value);
+
+    try {
+        const response = await fetch('/api/permissions/set', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: selectedUserId, bots })
+        });
+        const data = await response.json();
+        
+        if (data.Success) {
+            Swal.fire('Success', 'Permissions saved', 'success');
+        } else {
+            Swal.fire('Error', data.Message, 'error');
+        }
+    } catch (err) {
+        Swal.fire('Error', 'Failed to save permissions', 'error');
+    }
+}
+
+// Initialize
+async function init() {
+    const isAdmin = await checkAdminAccess();
+    if (isAdmin) {
+        await loadUsers();
+        await loadAllBots();
+    }
+}
+
+init();
+</script>
+
+<script src="../file/index.js"></script>
+
+</html>

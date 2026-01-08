@@ -11,7 +11,11 @@ var https = require("https");
 var pm2 = require("pm2");
 var fs = require("fs");
 var router = express.Router();
-router.post("/:name", function (req, res) {
+
+// Import permission checking
+var { requireBotAccess } = require("../modules/authMiddleware");
+
+router.post("/:name", requireBotAccess, function (req, res) {
     if (process.env.LOGIN_REQUIRED == "true") {
         if (!req.session.username) {
             res.end(JSON.stringify({

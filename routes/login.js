@@ -1,16 +1,7 @@
-var Modules = require("../modules/loader");
-var fastFolderSize = require("fast-folder-size");
-var Uploader = require("express-fileupload");
-var System = require("systeminformation");
-var Terminal = require("system-commands");
-var session = require("express-session");
-var bodyParser = require("body-parser");
+var { UserDB } = require("../modules/database");
 var express = require("express");
-var chalk = require("chalk");
-var https = require("https");
-var pm2 = require("pm2");
-var fs = require("fs");
 var router = express.Router();
+
 router.post("/", function (req, res) {
     if (!req.body.username) {
         res.end(JSON.stringify({
@@ -19,23 +10,32 @@ router.post("/", function (req, res) {
         }));
         return;
     }
-    if (!req.body.username) {
+    if (!req.body.password) {
         res.end(JSON.stringify({
             Success: false,
             Message: "You forgot to give a password",
         }));
         return;
     }
-    if (req.body.username == process.env.ADMIN_USERNAME &&
-        req.body.password == process.env.ADMIN_PASSWORD) {
-        req.session.username = req.body.username;
+    
+    // Verify credentials against database
+    const user = UserDB.verifyPassword(req.body.username, req.body.password);
+    
+    if (user) {
+        req.session.userId = user.id;
+        req.session.username = user.username;
+        req.session.role = user.role;
         req.session.save(function (err) {
             if (err) {
                 console.log(err);
             }
             res.end(JSON.stringify({
                 Success: true,
-                Message: "Successfuly Logged in",
+                Message: "Successfully Logged in",
+                User: {
+                    username: user.username,
+                    role: user.role
+                }
             }));
         });
     }
@@ -46,4 +46,27 @@ router.post("/", function (req, res) {
         }));
     }
 });
+
+// Get current user info
+router.get("/me", function (req, res) {
+    if (req.session && req.session.userId) {
+        const user = UserDB.getById(req.session.userId);
+        if (user) {
+            res.json({
+                Success: true,
+                User: {
+                    id: user.id,
+                    username: user.username,
+                    role: user.role
+                }
+            });
+            return;
+        }
+    }
+    res.json({
+        Success: false,
+        Message: "Not logged in"
+    });
+});
+
 module.exports = router;
