@@ -11,5 +11,6 @@ bots/*/
 bots/*
 .gitignore
 tsconfig.json
+database/panel.db
 database/*.json
 tailwind.config.js
