@@ -2,44 +2,44 @@
 <html lang="en">
 
 <head>
-  <title>Login</title>
+  <title>Login - Bot Dashboard</title>
   <link rel="stylesheet" href="../file/index.css" />
   <link rel="icon" href="../file/favicon.png" />
-  <link rel="stylesheet" href="../file/tailwinds.css" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="//unicons.iconscout.com/release/v4.0.0/css/line.css" />
-  <script src="//cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="../file/swal-dark.js"></script>
-  <script src="//unpkg.com/@popperjs/core@2"></script>
-  <script src="//unpkg.com/tippy.js@6"></script>
   <meta charset="UTF-8" />
 </head>
 
-<body class="bg-gray-100 text-gray-700 dark:text-white dark:bg-charade-700">
-  <section class="flex flex-wrap justify-center w-full text-sm">
-    <section class="flex flex-wrap justify-center w-full cursor-text">
-      <div
-        class="flex flex-wrap justify-center space-y-4 xl:w-4/12 mt-8 rounded-md shadow dark:bg-charade-600 bg-white py-5">
-        <div class="w-11/12">
-          <h2 class="font-bold text-5xl">DBP</h2>
-          <h2 class="">Login to your Discord bot panel.</h2>
-        </div>
-        <input type="username" id="admin_user_box" type="text"
-          class="bg-gray-100 dark:bg-charade-500 text-gray-700 dark:text-gray-300 w-11/12 rounded-md py-3 px-3 shadow" placeholder="Username" />
-        <input type="password" id="admin_pass_box" type="text"
-          class="bg-gray-100 dark:bg-charade-500 text-gray-700 dark:text-gray-300 w-11/12 rounded-md py-3 px-3 shadow" placeholder="Password" />
-        <div class="w-11/12">
-          <button
-            class="bg-blue-500 dark:bg-blue text-white font-bold py-3 px-12 shadow rounded-md hover:bg-blue-600 dark:hover:bg-blue-600 transition duration-300"
-            onclick="admin_login()">
-            LOGIN
-          </button>
-        </div>
+<body>
+  <div class="login-container">
+    <div class="login-card animate-slideUp">
+      <div class="login-logo">
+        <i class="uil uil-robot"></i> DBP
       </div>
-    </section>
-  </section>
+      <p class="login-subtitle">Sign in to your Discord Bot Panel</p>
+      
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" id="admin_user_box" placeholder="Enter your username" />
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" id="admin_pass_box" placeholder="Enter your password" />
+      </div>
+      
+      <button class="btn btn-primary btn-lg w-full" onclick="admin_login()">
+        <i class="uil uil-sign-in-alt"></i> Sign In
+      </button>
+      
+      <p class="text-muted text-sm" style="text-align: center; margin-top: 1.5rem;">
+        Discord Bot Panel &copy; 2025
+      </p>
+    </div>
+  </div>
 </body>
 <script src="../file/index.js"></script>
 

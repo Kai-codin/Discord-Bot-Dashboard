@@ -8,6 +8,7 @@ OneProperly
 *.ts
 .gitattributes
 bots/*/
+bots/*
 .gitignore
 tsconfig.json
 database/*.json

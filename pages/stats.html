@@ -2,10 +2,9 @@
 <html lang="en">
 
 <head>
-    <title>My Panel - Home</title>
+    <title>Statistics - Bot Panel</title>
     <link rel="stylesheet" href="../file/index.css" />
     <link rel="icon" href="../file/favicon.png" />
-    <link rel="stylesheet" href="../file/tailwinds.css" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="//unicons.iconscout.com/release/v4.0.0/css/line.css" />
@@ -17,63 +16,85 @@
     <meta charset="UTF-8" />
 </head>
 
-<body class="bg-gray-100 dark:bg-charade-700 text-gray-700 dark:text-gray-300 small-text">
-    <div class="flex flex-col">
-        <div class="flex-1 flex overflow-hidden">
-            <nav aria-label="Sidebar"
-                class="hidden md:block md:flex-shrink-0 h-screen bg-white dark:bg-charade-700 md:overflow-y-auto">
-                <div class="relative w-20 flex flex-col p-3 space-y-3" id="sidebar">
-                    <script src="/file/sidebar.js"></script>
-                </div>
-            </nav>
-            <main class="min-w-0 flex-1 lg:flex">
-                <section aria-labelledby="primary-heading"
-                    class="min-w-0 flex-1 h-full flex flex-col p-5 overflow-y-auto lg:order-last">
-                    <div class="">
-                        <div class="w-full flex flex-wrap dark:text-gray-200">
-                            <div class="w-full">
-                                <div
-                                    class="w-full flex grid-cols-2 text-sm gap-5 grid py-4 px-4 bg-white shadow flex-wrap dark:bg-charade-600 dark:text-gray-300 text-gray-700 rounded-md">
-                                    <h1 class=""><i class="uil uil-shield-exclamation"></i> Path: <span
-                                            id="panel_path_display">0</span>
-                                    </h1>
-                                    <h1 class=""><i class="uil uil-shield-exclamation"></i> Server: <a
-                                            class="text-blue-500 dark:text-blue" id="server_url_display">0</a></h1>
-                                    <h1 class=""><i class="uil uil-info-circle"></i> Total Bots: <span
-                                            id="total_bots_count">0</span>
-                                    </h1>
-                                    <h1 class=""><i class="uil uil-info-circle"></i> Storage(MBs): <span
-                                            id="total_storage_display">0</span>
-                                    </h1>
-                                    <h1 class=""><i class="uil uil-info-circle"></i> Ram(MBs): <span
-                                            id="total_ram_display">0</span>
-                                    </h1>
-                                </div>
-                            </div>
-                            <div class="w-full grid-cols-1 md:grid-cols-2 gap-5 grid dark:text-gray-200">
-                                <div class="text-center mt-5 bg-white shadow rounded dark:bg-charade-600">
-                                    <canvas class="float-right h-full w-full" id="cpu_chart"></canvas>
-                                </div>
-                                <div class="text-center mt-5 bg-white shadow rounded dark:bg-charade-600">
-                                    <canvas class="float-right h-full w-full" id="ram_chart"></canvas>
-                                </div>
-                            </div>
-                            <div class="w-full mt-5 dark:text-gray-200">
-                                <button onclick="reset_chart()"
-                                    class="bg-red-500 rounded-md text-white uppercase px-8 py-3 focus:outline-none">
-                                    Reset Chart
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </main>
+<body>
+    <div id="sidebar"><script src="/file/sidebar.js"></script></div>
+    
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title"><i class="uil uil-chart-line"></i> Statistics</h1>
+                <p class="page-subtitle">Monitor your panel and bot performance</p>
+            </div>
+            <button class="btn btn-danger" onclick="reset_chart()">
+                <i class="uil uil-redo"></i> Reset Charts
+            </button>
         </div>
-    </div>
+        
+        <!-- Stats Grid -->
+        <div class="stats-grid animate-fadeIn">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="uil uil-folder-open"></i>
+                </div>
+                <div class="stat-label">Panel Path</div>
+                <div class="stat-value text-sm truncate" id="panel_path_display">Loading...</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="uil uil-server"></i>
+                </div>
+                <div class="stat-label">Server URL</div>
+                <div class="stat-value text-sm">
+                    <a class="text-primary-color" id="server_url_display">Loading...</a>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="uil uil-robot"></i>
+                </div>
+                <div class="stat-label">Total Bots</div>
+                <div class="stat-value" id="total_bots_count">0</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <i class="uil uil-database"></i>
+                </div>
+                <div class="stat-label">Storage (MB)</div>
+                <div class="stat-value" id="total_storage_display">0</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon red">
+                    <i class="uil uil-processor"></i>
+                </div>
+                <div class="stat-label">RAM (MB)</div>
+                <div class="stat-value" id="total_ram_display">0</div>
+            </div>
+        </div>
+        
+        <!-- Charts -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
+            <div class="chart-card animate-fadeIn">
+                <div class="chart-title">
+                    <i class="uil uil-processor"></i> CPU Usage
+                </div>
+                <canvas id="cpu_chart"></canvas>
+            </div>
+            
+            <div class="chart-card animate-fadeIn">
+                <div class="chart-title">
+                    <i class="uil uil-server"></i> RAM Usage
+                </div>
+                <canvas id="ram_chart"></canvas>
+            </div>
+        </div>
+    </main>
 </body>
 
 <script src="/file/index.js"></script>
 <script src="/file/chart.js"></script>
-
 
 </html>

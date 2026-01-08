@@ -2,14 +2,12 @@
 <html lang="en">
 
 <head>
-    <title>My Panel - Home</title>
+    <title>Manage Apps - Bot Panel</title>
     <link rel="stylesheet" href="../file/index.css" />
     <link rel="icon" href="../file/favicon.png" />
-    <link rel="stylesheet" href="../file/tailwinds.css" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="//unicons.iconscout.com/release/v4.0.0/css/line.css" />
-    <script src="//cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../file/swal-dark.js"></script>
     <script src="//unpkg.com/@popperjs/core@2"></script>
@@ -17,91 +15,105 @@
     <meta charset="UTF-8" />
 </head>
 
-<body class="bg-gray-100 dark:bg-charade-700 text-gray-700 dark:text-gray-300 small-text">
-    <div class="flex flex-col">
-        <div class="flex-1 flex overflow-hidden">
-            <nav aria-label="Sidebar"
-                class="hidden md:block md:flex-shrink-0 h-screen bg-white dark:bg-charade-700 md:overflow-y-auto">
-                <div class="relative w-20 flex flex-col p-3 space-y-3" id="sidebar">
-                    <script src="/file/sidebar.js"></script>
-                </div>
-            </nav>
-
-            <main class="min-w-0 flex-1 lg:flex">
-                <section aria-labelledby="primary-heading"
-                    class="min-w-0 flex-1 h-full flex p-5 flex-col overflow-y-auto lg:order-last">
-                    <h1 id="primary-heading" class="sr-only">Home</h1>
-                    <div class="w-full">
-                        <div
-                            class=" dark:text-gray-300 w-full text-gray-600 rounded-md shadow py-5 px-5 dark:bg-charade-600">
-                            <h1 class="text-gray-600 text-xl font-semibold dark:text-gray-200 mb-3">Manage Application
-                            </h1>
-                            <div>
-                                <div>
-                                    <h3>Select Application</h3>
-                                    <select id="manage_apps_select"
-                                        class="rounded-md focus:outline-none border-transparent focus:border-blue-800 border-2  dark:bg-charade-500 bg-gray-100 py-3 px-3 w-full shadow">
-                                        <option value="">NONE</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="space-y-3 dark:text-gray-300 dark:text-gray-300 md:space-y-3">
-                                <button tip="Install All Required Modules" onclick="install_dependencies()"
-                                    class="mt-3 rounded-md bg-blue-500 dark:bg-blue text-white py-3 w-full lg:w-auto px-10">Download
-                                    Packages</button>
-                            </div>
-                            <div class="mt-5  dark:text-gray-300">
-                                <div>
-                                    <h3>Update Main Entry</h3>
-                                    <input placeholder="index.js or bot.py" type="text" id="update_app_entry"
-                                        class="focus:outline-none border-transparent focus:border-blue-800 border-2 py-3 px-3 bg-gray-100 dark:bg-charade-500 w-full text-gray-500 dark:text-gray-300 shadow rounded-md">
-                                </div>
-                                <button onclick="update_main()"
-                                    class="rounded-md bg-blue-500 mt-3 dark:bg-blue text-white py-3 w-full lg:w-auto px-10">Update</button>
-                            </div>
-                            <!-- JavaScript Package Installation -->
-                            <div id="js_package_section" class="mt-5 dark:text-gray-300">
-                                <div>
-                                    <h3 tip="Download A Node Package To Your Bot">Download Node Package</h3>
-                                    <input placeholder="discord.js" type="text" id="download_package_box"
-                                        class="focus:outline-none border-transparent focus:border-blue-800 border-2 py-3 px-3 bg-gray-100 dark:bg-charade-500 w-full text-gray-500 dark:text-gray-300 shadow rounded-md">
-                                </div>
-                                <button onclick="download_package()"
-                                    class="rounded-md bg-blue-500 mt-3 dark:bg-blue text-white py-3 w-full lg:w-auto px-10">Install</button>
-                            </div>
-                            <!-- Python Package Installation -->
-                            <div id="py_package_section" class="mt-5 dark:text-gray-300" style="display: none;">
-                                <div>
-                                    <h3 tip="Download A Python Package To Your Bot">Download Python Package</h3>
-                                    <input placeholder="discord.py" type="text" id="download_pip_package_box"
-                                        class="focus:outline-none border-transparent focus:border-blue-800 border-2 py-3 px-3 bg-gray-100 dark:bg-charade-500 w-full text-gray-500 dark:text-gray-300 shadow rounded-md">
-                                </div>
-                                <button onclick="download_pip_package()"
-                                    class="rounded-md bg-green-500 mt-3 text-white py-3 w-full lg:w-auto px-10">Install (pip)</button>
-                            </div>
-                        </div>
-                        <div class="space-y-4 text-gray-600 mt-8 rounded-md py-5 px-5 dark:bg-charade-600 shadow">
-                            <h1 class="text-gray-600 dark:text-gray-300 text-xl font-semibold">Delete Application</h1>
-                            <div class=" dark:text-gray-300">
-                                <h3>Select Application</h3>
-                                <select name="" id="delete_app_box"
-                                    class="rounded-md bg-gray-100 py-3 dark:bg-charade-500 px-3 w-full shadow">
-                                    <option value="">NONE</option>
-                                </select>
-                            </div>
-                            <div>
-                                <button onclick="delete_app()"
-                                    class="rounded-md bg-red-500 text-white py-3 w-full lg:w-auto px-10">Delete</button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </main>
+<body>
+    <div id="sidebar"><script src="/file/sidebar.js"></script></div>
+    
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title"><i class="uil uil-setting"></i> Manage Applications</h1>
+                <p class="page-subtitle">Configure and manage your bot applications</p>
+            </div>
         </div>
-    </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
+            <!-- Application Settings Card -->
+            <div class="card animate-fadeIn">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="uil uil-cog"></i> Application Settings</h2>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Select Application</label>
+                    <select id="manage_apps_select">
+                        <option value="">-- Select an application --</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Update Main Entry</label>
+                    <input type="text" id="update_app_entry" placeholder="index.js or bot.py" />
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="update_main()">
+                        <i class="uil uil-save"></i> Update Entry
+                    </button>
+                    <button class="btn btn-secondary" onclick="install_dependencies()" tip="Install all required modules">
+                        <i class="uil uil-package"></i> Install Packages
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Package Installation Card -->
+            <div class="card animate-fadeIn">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="uil uil-box"></i> Package Manager</h2>
+                </div>
+                
+                <!-- JavaScript Package Section -->
+                <div id="js_package_section">
+                    <div class="form-group">
+                        <label class="form-label">Install Node Package</label>
+                        <input type="text" id="download_package_box" placeholder="e.g., discord.js" />
+                        <p class="form-hint">Enter the npm package name to install</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="download_package()">
+                        <i class="uil uil-download-alt"></i> Install NPM Package
+                    </button>
+                </div>
+                
+                <!-- Python Package Section -->
+                <div id="py_package_section" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Install Python Package</label>
+                        <input type="text" id="download_pip_package_box" placeholder="e.g., discord.py" />
+                        <p class="form-hint">Enter the pip package name to install</p>
+                    </div>
+                    <button class="btn btn-success" onclick="download_pip_package()">
+                        <i class="uil uil-download-alt"></i> Install Pip Package
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Delete Application Card -->
+            <div class="card animate-fadeIn">
+                <div class="card-header">
+                    <h2 class="card-title" style="color: var(--danger);"><i class="uil uil-trash-alt"></i> Danger Zone</h2>
+                </div>
+                
+                <div class="alert alert-danger" style="margin-bottom: 1rem;">
+                    <i class="uil uil-exclamation-triangle"></i>
+                    <div>
+                        <strong>Warning:</strong> Deleting an application is permanent and cannot be undone.
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Select Application to Delete</label>
+                    <select id="delete_app_box">
+                        <option value="">-- Select an application --</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-danger" onclick="delete_app()">
+                    <i class="uil uil-trash"></i> Delete Application
+                </button>
+            </div>
+        </div>
+    </main>
 </body>
 
 <script src="../file/index.js"></script>
-
 
 </html>
