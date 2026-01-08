@@ -88,7 +88,6 @@ router.post("/", function (req, res) {
             fs.readFile(requirementsPath, "utf8", function (err, existingReqs) {
                 var reqs = existingReqs || "";
                 var packageBase = req.body.package_name.split("==")[0].split(">=")[0].split("<=")[0];
-                
                 // Check if package already in requirements.txt
                 if (!reqs.includes(packageBase)) {
                     fs.appendFile(requirementsPath, "\n".concat(req.body.package_name), function (err) {
@@ -98,7 +97,6 @@ router.post("/", function (req, res) {
                     });
                 }
             });
-            
             res.end(JSON.stringify({
                 Success: true,
                 Message: "Successfully Installed ".concat(req.body.package_name),
@@ -108,7 +106,7 @@ router.post("/", function (req, res) {
         .catch(function (err) {
             res.end(JSON.stringify({
                 Success: false,
-                Message: "An Error Occurred",
+                Message: err && err.stderr ? err.stderr : (err && err.message ? err.message : String(err)),
                 Error: err,
             }));
         });
@@ -160,7 +158,7 @@ router.get("/:name", function (req, res) {
         .catch(function (err) {
             res.end(JSON.stringify({
                 Success: false,
-                Message: "An Error Occurred While Installing Dependencies",
+                Message: err && err.stderr ? err.stderr : (err && err.message ? err.message : String(err)),
                 Error: err,
             }));
         });

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Clone Bot - Bot Panel</title>
+    <link rel="stylesheet" href="../file/index.css" />
+    <link rel="icon" href="../file/favicon.png" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="//unicons.iconscout.com/release/v4.0.0/css/line.css" />
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../file/swal-dark.js"></script>
+    <script src="//unpkg.com/@popperjs/core@2"></script>
+    <script src="//unpkg.com/tippy.js@6"></script>
+    <meta charset="UTF-8" />
+</head>
+
+<body>
+    <div id="sidebar"><script src="/file/sidebar.js"></script></div>
+    
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title"><i class="uil uil-github"></i> Clone from GitHub</h1>
+                <p class="page-subtitle">Clone a Discord bot from a GitHub repository</p>
+            </div>
+        </div>
+        
+        <div class="card animate-fadeIn" style="max-width: 600px;">
+            <div class="form-group">
+                <label class="form-label">GitHub Repository URL</label>
+                <input type="text" id="clone_repo_url" placeholder="https://github.com/username/repository" />
+                <p class="form-hint">Enter the full URL of the GitHub repository to clone</p>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Application Name</label>
+                <input type="text" id="clone_app_name" placeholder="e.g., MyClonedBot" />
+                <p class="form-hint">Choose a unique name for the cloned bot application</p>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Bot Type</label>
+                <select id="clone_app_type" onchange="updateCloneEntryPlaceholder()">
+                    <option value="javascript">JavaScript (Node.js)</option>
+                    <option value="python">Python</option>
+                </select>
+                <p class="form-hint">Select the programming language of the bot you're cloning</p>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Main Entry File</label>
+                <input type="text" id="clone_app_entry" placeholder="index.js" />
+                <p class="form-hint">The main file that will be executed when starting the bot</p>
+            </div>
+            
+            <button class="btn btn-primary btn-lg" onclick="clone_repo()" id="clone_btn">
+                <i class="uil uil-download-alt"></i> Clone Repository
+            </button>
+        </div>
+        
+        <div class="card animate-fadeIn" style="max-width: 600px; margin-top: 1.5rem;">
+            <h3 style="margin-bottom: 1rem; color: var(--text-primary);"><i class="uil uil-info-circle"></i> Tips</h3>
+            <ul style="color: var(--text-secondary); line-height: 1.8; padding-left: 1.5rem;">
+                <li>Make sure the repository is public or you have access to it</li>
+                <li>The bot type should match the programming language used in the repository</li>
+                <li>Check the repository's README for the correct main entry file</li>
+                <li>After cloning, you may need to install dependencies (npm install or pip install)</li>
+                <li>Don't forget to configure any required environment variables or config files</li>
+            </ul>
+        </div>
+    </main>
+</body>
+
+<script>
+    function updateCloneEntryPlaceholder() {
+        const botType = document.getElementById('clone_app_type').value;
+        const entryInput = document.getElementById('clone_app_entry');
+        if (botType === 'python') {
+            entryInput.placeholder = 'bot.py or main.py';
+            if (entryInput.value === '' || entryInput.value === 'index.js') {
+                entryInput.value = 'main.py';
+            }
+        } else {
+            entryInput.placeholder = 'index.js';
+            if (entryInput.value === '' || entryInput.value === 'main.py' || entryInput.value === 'bot.py') {
+                entryInput.value = 'index.js';
+            }
+        }
+    }
+
+    // Try to auto-detect bot name from GitHub URL
+    document.getElementById('clone_repo_url').addEventListener('input', function(e) {
+        const url = e.target.value;
+        const nameInput = document.getElementById('clone_app_name');
+        
+        // Only auto-fill if name is empty
+        if (nameInput.value === '') {
+            const match = url.match(/github\.com\/[\w.-]+\/([\w.-]+?)(\.git)?$/i);
+            if (match && match[1]) {
+                nameInput.value = match[1].replace(/[^a-zA-Z0-9-_]/g, '-');
+            }
+        }
+    });
+</script>
+<script src="../file/index.js"></script>
+
+</html>

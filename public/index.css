@@ -960,7 +960,165 @@ input[type="checkbox"] {
   color: var(--success);
 }
 
+/* ===== Permissions Grid ===== */
+.permissions-grid {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 1rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.checkbox-item:hover {
+  background: var(--bg-hover);
+}
+
+.checkbox-item input[type="checkbox"] {
+  flex-shrink: 0;
+}
+
+/* ===== Badge Purple ===== */
+.badge-purple {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+html.dark .badge-purple {
+  background: #4c1d95;
+  color: #c4b5fd;
+}
+
+/* ===== Grid Utilities ===== */
+.grid {
+  display: grid;
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.grid-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 1024px) {
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-cols-2,
+  .grid-cols-3,
+  .grid-cols-4 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ===== Form Input Override ===== */
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+/* ===== Terminal Styles ===== */
+.terminal-wrapper {
+  background: #1e1e2e;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.terminal-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #181825;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.terminal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.terminal-dot.red { background: #ff5f56; }
+.terminal-dot.yellow { background: #ffbd2e; }
+.terminal-dot.green { background: #27ca40; }
+
+.terminal-content {
+  height: calc(100vh - 200px);
+  min-height: 400px;
+}
+
+.terminal-content .xterm {
+  padding: 1rem;
+}
+
 /* Keep old class support for compatibility */
 .small-text {
   font-size: 0.875rem;
 }
+
+/* ===== Tippy.js Modern Theme ===== */
+.tippy-box[data-theme~='modern'] {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  font-size: 0.75rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-md);
+}
+
+.tippy-box[data-theme~='modern'][data-placement^='right'] > .tippy-arrow::before {
+  border-right-color: var(--bg-secondary);
+}
+
+.tippy-box[data-theme~='modern'][data-placement^='left'] > .tippy-arrow::before {
+  border-left-color: var(--bg-secondary);
+}
+
+.tippy-box[data-theme~='modern'][data-placement^='top'] > .tippy-arrow::before {
+  border-top-color: var(--bg-secondary);
+}
+
+.tippy-box[data-theme~='modern'][data-placement^='bottom'] > .tippy-arrow::before {
+  border-bottom-color: var(--bg-secondary);
+}
+
+/* ===== Clone Page Styles ===== */
+.clone-card {
+  max-width: 600px;
+}
+

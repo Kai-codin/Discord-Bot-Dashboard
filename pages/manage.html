@@ -53,6 +53,24 @@
                         <i class="uil uil-package"></i> Install Packages
                     </button>
                 </div>
+                
+                <!-- Git Sync Section -->
+                <div id="git_sync_section" style="display: none; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color);">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                        <i class="uil uil-github" style="font-size: 1.25rem; color: var(--text-secondary);"></i>
+                        <div>
+                            <p style="font-weight: 500; color: var(--text-primary);">Git Repository</p>
+                            <p id="git_remote_url" style="font-size: 0.75rem; color: var(--text-muted);">Loading...</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                        <span class="badge badge-primary" id="git_branch_badge">main</span>
+                        <span id="git_last_commit" style="font-size: 0.75rem; color: var(--text-muted);"></span>
+                    </div>
+                    <button class="btn btn-primary" onclick="syncSelectedApp()">
+                        <i class="uil uil-sync"></i> Sync from GitHub
+                    </button>
+                </div>
             </div>
             
             <!-- Package Installation Card -->
@@ -115,5 +133,46 @@
 </body>
 
 <script src="../file/index.js"></script>
+<script>
+    // Check git status when app is selected
+    document.getElementById('manage_apps_select').addEventListener('change', async function() {
+        const appName = this.value;
+        const gitSection = document.getElementById('git_sync_section');
+        
+        if (!appName) {
+            gitSection.style.display = 'none';
+            return;
+        }
+        
+        try {
+            const status = await checkGitStatus(appName);
+            
+            if (status.Success && status.IsGitRepo) {
+                gitSection.style.display = 'block';
+                document.getElementById('git_remote_url').textContent = status.RemoteUrl || 'Unknown';
+                document.getElementById('git_branch_badge').textContent = status.Branch || 'main';
+                document.getElementById('git_last_commit').textContent = status.LastCommit || '';
+                
+                if (status.HasLocalChanges) {
+                    document.getElementById('git_last_commit').innerHTML += ' <span class="badge badge-warning" style="font-size: 0.65rem;">Local changes</span>';
+                }
+            } else {
+                gitSection.style.display = 'none';
+            }
+        } catch (err) {
+            console.error('Error checking git status:', err);
+            gitSection.style.display = 'none';
+        }
+    });
+    
+    function syncSelectedApp() {
+        const appName = document.getElementById('manage_apps_select').value;
+        if (appName) {
+            sync_repo(appName);
+        } else {
+            Err('Please select an application first');
+        }
+    }
+</script>
 
 </html>

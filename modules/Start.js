@@ -57,10 +57,20 @@ function detectBotType(botPath) {
         try {
             var config = JSON.parse(fs.readFileSync(botConfigPath, "utf8"));
             if (config.type === "python") {
+                // Validate interpreter - must be a valid Python executable name
+                var validPythonInterpreters = ["python", "python3", "python3.8", "python3.9", "python3.10", "python3.11", "python3.12", "python3.13"];
+                var interpreter = config.interpreter || "python3";
+                
+                // Sanitize interpreter - only allow known Python executables
+                if (!validPythonInterpreters.includes(interpreter) && !interpreter.match(/^python[0-9.]*$/)) {
+                    console.warn(chalk.yellow("Invalid interpreter '".concat(interpreter, "', defaulting to python3")));
+                    interpreter = "python3";
+                }
+                
                 return {
                     type: "python",
                     main: config.main,
-                    interpreter: config.interpreter || "python3",
+                    interpreter: interpreter,
                     config: config
                 };
             }

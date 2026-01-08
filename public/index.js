@@ -141,6 +141,147 @@ function create_app() {
     .catch((err) => console.log(err));
 }
 
+function clone_repo() {
+  const repoUrl = document.getElementById("clone_repo_url");
+  const appName = document.getElementById("clone_app_name");
+  const appEntry = document.getElementById("clone_app_entry");
+  const botType = document.getElementById("clone_app_type");
+  const cloneBtn = document.getElementById("clone_btn");
+
+  if (!repoUrl.value) {
+    Err("Please enter a GitHub repository URL");
+    return;
+  }
+
+  if (!appName.value) {
+    Err("Please enter an application name");
+    return;
+  }
+
+  if (!appEntry.value) {
+    Err("Please enter a main entry file");
+    return;
+  }
+
+  // Disable button and show loading state
+  const originalBtnText = cloneBtn.innerHTML;
+  cloneBtn.disabled = true;
+  cloneBtn.innerHTML = '<i class="uil uil-spinner-alt uil-spin"></i> Cloning...';
+
+  fetch("../clone_repo", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      repo_url: repoUrl.value,
+      name: appName.value,
+      main_entry: appEntry.value,
+      bot_type: botType ? botType.value : 'javascript',
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      // Re-enable button
+      cloneBtn.disabled = false;
+      cloneBtn.innerHTML = originalBtnText;
+
+      if (data.Success) {
+        Success(data.Message);
+        // Clear form on success
+        repoUrl.value = "";
+        appName.value = "";
+        appEntry.value = "";
+      } else {
+        Err(data.Message);
+      }
+    })
+    .catch((err) => {
+      // Re-enable button on error
+      cloneBtn.disabled = false;
+      cloneBtn.innerHTML = originalBtnText;
+      Err("An error occurred while cloning the repository");
+      console.log(err);
+    });
+}
+
+// Sync repository from GitHub
+function sync_repo(appName) {
+  if (!appName) {
+    Err("Please provide an application name");
+    return;
+  }
+
+  Swal.fire({
+    title: 'Sync Repository',
+    text: `This will pull the latest changes from GitHub for "${appName}". Any local changes may be overwritten.`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: 'var(--accent-primary)',
+    cancelButtonColor: 'var(--danger)',
+    confirmButtonText: '<i class="uil uil-sync"></i> Sync Now',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      performSync(appName);
+    }
+  });
+}
+
+function performSync(appName) {
+  // Show loading
+  Swal.fire({
+    title: 'Syncing...',
+    html: `<p>Pulling latest changes from GitHub...</p>`,
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
+
+  fetch("../sync_repo", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: appName,
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      Swal.close();
+      if (data.Success) {
+        Swal.fire({
+          title: 'Synced!',
+          html: `<p>${data.Message}</p><pre style="text-align:left;font-size:12px;max-height:200px;overflow:auto;background:var(--bg-tertiary);padding:10px;border-radius:8px;margin-top:10px;">${data.Output || 'Up to date'}</pre>`,
+          icon: 'success',
+          confirmButtonColor: 'var(--accent-primary)'
+        });
+      } else {
+        Err(data.Message);
+      }
+    })
+    .catch((err) => {
+      Swal.close();
+      Err("An error occurred while syncing the repository");
+      console.log(err);
+    });
+}
+
+// Check git status for an app
+async function checkGitStatus(appName) {
+  try {
+    const response = await fetch(`../sync_repo/status/${encodeURIComponent(appName)}`);
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error('Error checking git status:', err);
+    return { Success: false, IsGitRepo: false };
+  }
+}
+
 function renderFileManager() {
   fetch(`../dirs?path=${Name}`)
     .then((response) => {
@@ -298,79 +439,50 @@ async function renderDashboard() {
         if (document.getElementById("apps_table")) {
           document.getElementById(
             "apps_table"
-          ).innerHTML += `<tr class="rounded-lg dark:bg-charade-600">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="ml-4">
-                                                <div class=" dark:text-gray-200 text-gray-500">
-                                                    ${Process.App.Pid}
-                                                </div>
-                                            </div>
-                                        </div>
+          ).innerHTML += `<tr>
+                                    <td>
+                                        ${Process.App.Pid}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class=" dark:text-gray-200 text-gray-900">${
-                                          Process.App.Name || "Unknown"
-                                        }</div>
+                                    <td>
+                                        <strong>${Process.App.Name || "Unknown"}</strong>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span
-                                            class="px-3 py-1 uppercase inline-flex leading-5 rounded-full ${BotType === 'python' ? 'bg-green-500' : 'bg-yellow-500'} text-white font-bold text-xs">
+                                    <td>
+                                        <span class="badge ${BotType === 'python' ? 'badge-success' : 'badge-warning'}">
                                             ${BotType === 'python' ? 'Python' : 'JavaScript'}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 dark:text-gray-200 whitespace-nowrap">
-                                        <span
-                                            class="px-5 py-1 uppercase inline-flex  leading-5 rounded-full bg-${StatusToColor(
-                                              Process.App.Status
-                                            )}-500 text-white font-bold">
+                                    <td>
+                                        <span class="badge badge-${StatusToColor(Process.App.Status) === 'green' ? 'success' : StatusToColor(Process.App.Status) === 'red' ? 'danger' : 'warning'}">
                                             ${Process.App.Status}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="dark:text-gray-200 text-gray-900">${Math.floor(
-                                          Process.Memory / 1000000
-                                        )}MB</div>
+                                    <td>
+                                        ${Math.floor(Process.Memory / 1000000)}MB
                                     </td>
-                                    <td
-                                        class="px-6 space-x-3 items-center py-4 whitespace-nowrap text-right  font-medium">
-                                        <button ${StatusToFunction({
-                                          Status: Process.App.Status,
-                                          Name: Process.App.Name,
-                                        })}
-                                            class="items-center rounded-md dark:bg-charade-500 w-10 h-10 bg-gray-50 shadow text-${StatusToButton(
-                                              Process.App.Status
-                                            )}-500 hover:text-gray-50 hover:bg-${StatusToButton(
-            Process.App.Status
-          )}-500">
-                                                ${StatusToIcon(
-                                                  Process.App.Status
-                                                )}
-                                        </button>
-                                        <button tip="Restart" onclick="restart_app('${
-                                          Process.App.Name
-                                        }')"
-                                            class="items-center rounded-md dark:bg-charade-500 w-10 h-10 bg-gray-50 shadow text-blue-500 hover:text-gray-50 hover:bg-blue-500">
-                                            <i class="uil uil-history-alt"></i>
-                                        </button>
-                                        <button tip="Show Logs" onclick="show_log('${
-                                          Process.App.Name
-                                        }')"
-                                            class="items-center rounded-md dark:bg-charade-500 w-10 h-10 bg-gray-50 shadow text-amber-500 hover:text-gray-50 hover:bg-amber-500">
-                                            <i class="uil uil-file"></i>
-                                        </button>
-                                        <button tip="Show Error Logs" onclick="show_error_log('${
-                                          Process.App.Name
-                                        }')"
-                                            class="items-center rounded-md dark:bg-charade-500 w-10 h-10 bg-gray-50 shadow text-red-500 hover:text-gray-50 hover:bg-red-500">
-                                            <i class="uil uil-exclamation-octagon"></i>
-                                        </button>
-                                        <button tip="File Manager" onclick="file_manager('${
-                                          Process.App.Name
-                                        }')"
-                                            class="items-center rounded-md dark:bg-charade-500 w-10 h-10 bg-gray-50 shadow text-purple-500 hover:text-gray-50 hover:bg-purple-500">
-                                            <i class="uil uil-folder"></i>
-                                        </button>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button ${StatusToFunction({
+                                              Status: Process.App.Status,
+                                              Name: Process.App.Name,
+                                            })} class="btn btn-sm btn-${StatusToButton(Process.App.Status)}" tip="${Process.App.Status === 'online' ? 'Stop' : 'Start'}">
+                                                ${StatusToIcon(Process.App.Status)}
+                                            </button>
+                                            <button tip="Restart" onclick="restart_app('${Process.App.Name}')" class="btn btn-sm btn-primary">
+                                                <i class="uil uil-history-alt"></i>
+                                            </button>
+                                            <button tip="Show Logs" onclick="show_log('${Process.App.Name}')" class="btn btn-sm btn-warning">
+                                                <i class="uil uil-file"></i>
+                                            </button>
+                                            <button tip="Show Error Logs" onclick="show_error_log('${Process.App.Name}')" class="btn btn-sm btn-danger">
+                                                <i class="uil uil-exclamation-octagon"></i>
+                                            </button>
+                                            <button tip="File Manager" onclick="file_manager('${Process.App.Name}')" class="btn btn-sm btn-secondary">
+                                                <i class="uil uil-folder"></i>
+                                            </button>
+                                            <button tip="Sync from GitHub" onclick="sync_repo('${Process.App.Name}')" class="btn btn-sm btn-ghost" data-sync-btn="${Process.App.Name}">
+                                                <i class="uil uil-github"></i>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>`;
         }
@@ -504,11 +616,11 @@ function StatusToColor(status) {
 
 function StatusToButton(status) {
   if (status == "online") {
-    return "red";
+    return "danger"; // Red button to stop
   } else if (status == "stopped") {
-    return "green";
+    return "success"; // Green button to start
   } else {
-    return "amber";
+    return "warning";
   }
 }
 
@@ -662,7 +774,11 @@ async function install_dependencies() {
           if (myJson.Success) {
             Side_Success(myJson.Message);
           } else {
-            Side_Err(myJson.Message);
+            let errorMsg = myJson.Message;
+            //if (myJson.Error) {
+            //  errorMsg += `\nDetails: ${typeof myJson.Error === 'string' ? myJson.Error : JSON.stringify(myJson.Error)}`;
+            //}
+            Side_Err(errorMsg);
           }
         });
     } else {
@@ -673,7 +789,11 @@ async function install_dependencies() {
           if (myJson.Success) {
             Side_Success(myJson.Message);
           } else {
-            Side_Err(myJson.Message);
+            let errorMsg = myJson.Message;
+            if (myJson.Error) {
+              errorMsg += `\nDetails: ${typeof myJson.Error === 'string' ? myJson.Error : JSON.stringify(myJson.Error)}`;
+            }
+            Side_Err(errorMsg);
           }
         });
     }

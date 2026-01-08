@@ -20,34 +20,32 @@ router.get("/", function (req, res) {
             if (req.params.name) {
                 Terminal("cd ".concat(Path, " && npm install"))
                     .then(function (data) {
-                    res.end(JSON.stringify({
-                        Success: true,
-                        Message: "Successfuly Installed All Modules",
-                        Data: data,
-                    }));
-                })
+                        res.end(JSON.stringify({
+                            Success: true,
+                            Message: "Successfully Installed All Modules",
+                            Data: data,
+                        }));
+                    })
                     .catch(function (err) {
-                    res.end(JSON.stringify({
-                        Success: false,
-                        Message: "An Error Occured While Trying To Install Modules For ".concat(req.params.name),
-                    }));
-                });
-            }
-            else {
+                        res.end(JSON.stringify({
+                            Success: false,
+                            Message: err && err.stderr ? err.stderr : (err && err.message ? err.message : String(err)),
+                            Error: err,
+                        }));
+                    });
+            } else {
                 res.end(JSON.stringify({
                     Success: false,
                     Message: "No Bot Name Found",
                 }));
             }
-        }
-        else {
+        } else {
             res.end(JSON.stringify({
                 Success: false,
                 Message: "Illegal Attempt To Run Npm Install on a File",
             }));
         }
-    }
-    else {
+    } else {
         res.end(JSON.stringify({
             Success: false,
             Message: "App Directory is Broken Or Does Not Exist",
